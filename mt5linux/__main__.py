@@ -145,31 +145,34 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description='Create Server.')
     parser.add_argument('python', type=str, help='Python that will run the server (have to be a Windows version!)')
-    parser.add_argument('--host', type=str, default='localhost', help='The host to connect to. The default is localhost')
-    parser.add_argument('-p','--port', type=int, default=DEFAULT_SERVER_PORT, help=f'The TCP listener port (default = {DEFAULT_SERVER_PORT!r}, default for SSL = {DEFAULT_SERVER_SSL_PORT!r})')
-    parser.add_argument('-w','--wine', type=str, default='wine', help='Command line to call wine program (default = wine)')
-    parser.add_argument('-s','--server', type=str, default='/tmp/mt5linux', help='Path where the server will be build and run (defaul = /tmp/mt5linux)')
+    parser.add_argument('--host', type=str, default='localhost',
+                        help='The host to connect to. The default is localhost')
+    parser.add_argument('-p', '--port', type=int, default=DEFAULT_SERVER_PORT,
+                        help=f'The TCP listener port (default = {DEFAULT_SERVER_PORT!r}, default for SSL = {DEFAULT_SERVER_SSL_PORT!r})')
+    parser.add_argument('-w', '--wine', type=str, default='wine',
+                        help='Command line to call wine program (default = wine)')
+    parser.add_argument('-s', '--server', type=str, default='/tmp/mt5linux',
+                        help='Path where the server will be built and run (default = /tmp/mt5linux)')
     args = parser.parse_args()
-    #
-    wine_cmd=args.wine
-    win_python_path=args.python
-    server_dir=args.server
-    server_code='server.py'
-    port=args.port
-    host=args.host
-    #
-    Popen(['mkdir','-p',server_dir],shell=True).wait()
-    __generate_server_classic(os.path.join(server_dir,server_code))
-    Popen([
-            wine_cmd,
-            os.path.join(win_python_path),
-            os.path.join(server_dir,server_code),
-            '--host',
-            host,
-            '-p',
-            str(port),
-        ],shell=True,
-    ).wait()
+
+    # Ensure the directory exists
+    os.makedirs(args.server, exist_ok=True)
+
+    # Generate server script
+    server_script_path = os.path.join(args.server, 'server.py')
+    __generate_server_classic(server_script_path)
+
+    # Start the server
+    cmd = [
+        args.wine,
+        args.python,
+        server_script_path,
+        '--host',
+        args.host,
+        '-p',
+        str(args.port)
+    ]
+    Popen(cmd).wait()
 
 
 if __name__ == '__main__':
