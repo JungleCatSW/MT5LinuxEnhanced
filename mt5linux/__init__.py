@@ -3379,6 +3379,7 @@ MetaTrader5 package version:  5.0.29
     `order_check`, `OrderSend`,Trading operation types, Trading request structure, Structure of the trading request check results, Structure of the trading request result
         '''
         code=f'mt5.order_send({request})'
+        self.__conn.execute("import numpy as np")
         return self.__conn.eval(code)
 
     def positions_total(self,*args,**kwargs):
